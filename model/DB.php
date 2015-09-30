@@ -72,7 +72,10 @@ class DB {
      * @throws Exception, if an error occurs with the DB
      */
     public function addToDB($username, $password) {
-        $sql = "INSERT INTO users (username, password) VALUES ($username, $password)";
+        $sql = "INSERT INTO users " .
+                "(`username`,`password`) " .
+                "VALUES ('$username', '$password')";
+
         $result = $this->conn->query($sql);
 
         if ($result == false) { // Error with the DB. Throw an exception.

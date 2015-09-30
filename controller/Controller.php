@@ -73,6 +73,8 @@ class Controller {
 
                 if($this->authenticate->register($newUsername, $newPassword, $repeatedPassword)) {
 
+                    $this->view->getLoginView()->redirect($this->authenticate->getOutputMsg());
+
                 } else { // Something is wrong with user input during registration
                     $this->view->getRegisterView()->redirect($this->authenticate->getOutputMsg());
                 }

@@ -141,8 +141,8 @@ class Authentication {
             return false;
         }
 
-        $this->outputMsg = 'Registered new user.';
         $this->usersArr->addNewUserToDB($username, $password);
+        $this->outputMsg = 'Registered new user.';
         return true;
 
     }

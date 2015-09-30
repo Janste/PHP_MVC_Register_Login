@@ -8,6 +8,18 @@ class RegisterView {
     private static $repeatPassword = 'RegisterView::RepeatPassword';
     private static $register = 'DoRegistration';
     private static $cookieSessionMessage = 'RegisterView::CookieSessionMessage';
+    private static $cookieUsername = 'RegisterView::CookieUsername';
+
+    private function checkUserName() {
+        if(isset($_COOKIE[self::$cookieUsername])) {
+            $username = $_COOKIE[self::$cookieUsername];
+            $username = strip_tags($username);
+            setcookie(self::$cookieUsername, "", time() - 1000 , "/");
+            return $username;
+        } else {
+            return "";
+        }
+    }
 
     /**
      * Gets the username from the username field
@@ -16,7 +28,7 @@ class RegisterView {
     public function getUserNameToRegister() {
         if(isset($_POST[self::$username])) {
             $username = $_POST[self::$username];
-            //setcookie(self::$cookieUsername, $username, 0 , "/");
+            setcookie(self::$cookieUsername, $username, 0 , "/");
             return $username;
         } else {
             return false;
@@ -100,7 +112,7 @@ class RegisterView {
 				<legend>Register a new user - Write username and password</legend>
 					<p id='" . self::$message . "'>" . $this->getSessionMessage() . "</p>
 					<label for='" . self::$username . "' >Username :</label>
-					<input type='text' size='20' name='" . self::$username . "' id='" . self::$username . "' value='' />
+					<input type='text' size='20' name='" . self::$username . "' id='" . self::$username . "' value='". $this->checkUserName() ."' />
 					<br/>
 					<label for='" . self::$password . "' >Password  :</label>
 					<input type='password' size='20' name='" . self::$password . "' id='" . self::$password . "' value='' />
