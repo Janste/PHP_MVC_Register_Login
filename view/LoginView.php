@@ -29,6 +29,10 @@ class LoginView {
         }
     }
 
+    public function setUsernameToDisplay($usernameToDisplay) {
+        setcookie(self::$cookieUsername, $usernameToDisplay, 0 , "/");
+    }
+
     /**
      * Get the username from the form.
      * @param nothing
