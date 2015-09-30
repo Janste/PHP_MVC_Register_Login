@@ -115,4 +115,66 @@ class Authentication {
         return false;
     }
 
+    public function register($username, $password, $repeatedPassword) {
+        if(empty($username) && empty($password)) {
+            $this->outputMsg = 'Username has too few characters, at least 3 characters.<br />Password has too few characters, at least 6 characters.';
+            return false;
+        }
+        elseif(strlen($username) < 3) {
+            $this->outputMsg = 'Username has too few characters, at least 3 characters.';
+            return false;
+        }
+        elseif (strlen($password) < 6 || empty($password) || empty($repeatedPassword)) {
+            $this->outputMsg = 'Password has too few characters, at least 6 characters.';
+            return false;
+        }
+        elseif ($password != $repeatedPassword) {
+            $this->outputMsg = 'Passwords do not match.';
+            return false;
+        }
+        elseif ($this->containsInvalidCharacters($username)) {
+            $this->outputMsg = 'Username contains invalid characters.';
+            return false;
+        }
+        elseif($this->checkUsernameExists($username)) {
+            $this->outputMsg = 'User exists, pick another username.';
+            return false;
+        }
+
+        $this->outputMsg = 'Registered new user.';
+        $this->usersArr->addNewUserToDB($username, $password);
+        return true;
+
+    }
+
+    /**
+     * Checks if username exists
+     * @param $username
+     * @return bool
+     */
+    private function checkUsernameExists($username) {
+
+        $amount = count($this->users);
+
+        for($i = 0; $i < $amount; $i++) {
+            if($this->users[$i]->getUsername() == $username) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks is given string contains only valid characters
+     * @param $username, a string
+     * @return bool, true is invalid characters found, false if valid characters found
+     */
+    public function containsInvalidCharacters($username) {
+        if (preg_match("/[^A-Za-z0-9]/", $username)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

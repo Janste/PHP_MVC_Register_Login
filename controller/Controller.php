@@ -1,19 +1,13 @@
 <?php
 
-// Include files and classes needed
-require_once('view/LoginView.php');
-require_once('view/DateTimeView.php');
-require_once('view/LayoutView.php');
-require_once('model/Authentication.php');
-
 class Controller {
 
-    private $loginV;
+    private $view;
     private $authenticate;
 
     // Constructor
-    public function __construct(Authentication $m, LoginView $v) {
-        $this->loginV = $v;
+    public function __construct(Authentication $m, GeneralView $v) {
+        $this->view = $v;
         $this->authenticate = $m;
     }
 
@@ -24,50 +18,65 @@ class Controller {
         $this->authenticate->initialize();
 
         // Get information about the user
-        $userClient = $this->loginV->getUserClient();
+        $userClient = $this->view->getUserClient();
 
         // Check if user is logged in
         if ($this->authenticate->isLoggedIn($userClient)) {
 
             // Create view for logged in page
-            $this->loginV->setUserLoggedIn(true);
+            $this->view->getLoginView()->setUserLoggedIn(true);
 
             // Check if user clicked on log out button
-            if ($this->loginV->checkLogoutButtonClicked()) {
+            if ($this->view->getLoginView()->checkLogoutButtonClicked()) {
 
                 // Logging out user, display proper view
                 $this->authenticate->doLogout();
-                $this->loginV->setUserLoggedIn(false);
+                $this->view->getLoginView()->setUserLoggedIn(false);
 
-                $this->loginV->redirect($this->authenticate->getOutputMsg());
+                $this->view->getLoginView()->redirect($this->authenticate->getOutputMsg());
             }
 
         } else { // User not logged in
 
             // Set proper view for the logged out page
-            $this->loginV->setUserLoggedIn(false);
+            $this->view->getLoginView()->setUserLoggedIn(false);
 
             // Check if log in button clicked
-            if ($this->loginV->checkLogInButtonClicked()) {
+            if ($this->view->getLoginView()->checkLogInButtonClicked()) {
 
                 // Get username and password from the form in view
-                $username = $this->loginV->getUserName();
-                $password = $this->loginV->getPassword();
+                $username = $this->view->getLoginView()->getUserName();
+                $password = $this->view->getLoginView()->getPassword();
 
                 // Authenticate user credentials
                 if ($this->authenticate->login($username, $password, $userClient)) {
 
                     // User credentials correct, set up proper view
-                    $this->loginV->setUserLoggedIn(true);
+                    $this->view->getLoginView()->setUserLoggedIn(true);
 
-                    $this->loginV->redirect($this->authenticate->getOutputMsg());
+                    $this->view->getLoginView()->redirect($this->authenticate->getOutputMsg());
 
                 } else { // User credentials incorrect
 
                     // Set up view with error message
-                    $this->loginV->setUserLoggedIn(false);
+                    $this->view->getLoginView()->setUserLoggedIn(false);
+                    $this->view->getLoginView()->redirect($this->authenticate->getOutputMsg());
 
                 }
+
+            // Check if register button clicked
+            } elseif($this->view->getRegisterView()->checkRegisterButtonClicked()) {
+
+                $newUsername = $this->view->getRegisterView()->getUserNameToRegister();
+                $newPassword = $this->view->getRegisterView()->getPasswordToRegister();
+                $repeatedPassword = $this->view->getRegisterView()->getRepeatedPasswordToRegister();
+
+                if($this->authenticate->register($newUsername, $newPassword, $repeatedPassword)) {
+
+                } else { // Something is wrong with user input during registration
+                    $this->view->getRegisterView()->redirect($this->authenticate->getOutputMsg());
+                }
+
             }
         }
     }

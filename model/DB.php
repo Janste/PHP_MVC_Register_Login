@@ -64,4 +64,19 @@ class DB {
             }
             return $array;
     }
+
+    /**
+     * Adds a new user to the DB
+     * @param $username
+     * @param $password
+     * @throws Exception, if an error occurs with the DB
+     */
+    public function addToDB($username, $password) {
+        $sql = "INSERT INTO users (username, password) VALUES ($username, $password)";
+        $result = $this->conn->query($sql);
+
+        if ($result == false) { // Error with the DB. Throw an exception.
+            throw new \Exception("Error with the database.");
+        }
+    }
 }

@@ -11,12 +11,29 @@ class UserArray {
     private $errorMsg;
     private $users = array();
 
+    public function addNewUserToDB($username, $password) {
+        try {
+
+            DB::getInstance()->addToDB($username, $password);
+            $user = new User();
+            $user->setUsername($username);
+            $user->setPassword($password);
+            $this->addUserToArray($user);
+            return true;
+
+        } catch (Exception $e) { // Catch exception
+            $this->errorMsg = $e->getMessage(); // Get error message
+            return false;
+        }
+
+    }
+
     /**
      * Add one user to the array
      * @param $tobeAdded, which is to be added to array
      * @return  void, it adds user to array
      */
-    public function add (User $tobeAdded) {
+    public function addUserToArray(User $tobeAdded) {
         $this->users[] = $tobeAdded;
     }
 
@@ -42,7 +59,7 @@ class UserArray {
                     }
                     $x++;
                 }
-                $this->add($user);
+                $this->addUserToArray($user);
             }
             return true;
         } catch (Exception $e) { // Catch exception

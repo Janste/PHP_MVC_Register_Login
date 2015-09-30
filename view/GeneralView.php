@@ -1,6 +1,6 @@
 <?php
 
-class LayoutView {
+class GeneralView {
 
     private $lv;
     private $rv;
@@ -20,6 +20,10 @@ class LayoutView {
 
     public function getRegisterView() {
         return $this->rv;
+    }
+
+    public function getUserClient() {
+        return new UserClient($_SERVER["REMOTE_ADDR"], $_SERVER["HTTP_USER_AGENT"]);
     }
 
     /**

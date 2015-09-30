@@ -1,25 +1,33 @@
 <?php
+
 class LoginView {
 	private static $login = 'LoginView::Login';
 	private static $logout = 'LoginView::Logout';
 	private static $name = 'LoginView::UserName';
 	private static $password = 'LoginView::Password';
-	private static $cookieID = 'LoginView::CookieID';
-	private static $cookiePassword = 'LoginView::CookiePassword';
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
 	private static $username = '';
+    private static $cookieSessionMessage = 'LoginView::CookieSessionMessage';
+    private static $cookieUsername = 'LoginView::CookieUsername';
 
-	private static $sessionMessage = "message";
-
-	private $message = '';
 	private $loggedIn = false;
 
     // If user inserted username then get that username
     // so that it can be displayed on the form
 	public function __construct() {
-		self::$username = $this->getUserName();
+		self::$username = $this->checkUserName();
 	}
+
+    private function checkUserName() {
+        if(isset($_COOKIE[self::$cookieUsername])) {
+            $username = $_COOKIE[self::$cookieUsername];
+            setcookie(self::$cookieUsername, "", time() - 1000 , "/");
+            return $username;
+        } else {
+            return "";
+        }
+    }
 
     /**
      * Get the username from the form.
@@ -29,11 +37,11 @@ class LoginView {
     public function getUserName() {
         if(isset($_POST[self::$name])) {
             $username = $_POST[self::$name];
+            setcookie(self::$cookieUsername, $username, 0 , "/");
             return $username;
         } else {
             return false;
         }
-
     }
 
     /**
@@ -49,15 +57,6 @@ class LoginView {
             return false;
         }
     }
-
-    /**
-     * Sets a message that will be displayed to the user
-     * @param nothing
-     * @return void
-     */
-	public function setMessage($m) {
-		$this->message = $m;
-	}
 
     /**
      * Sets the boolean value. True is user logged in, false otherwise.
@@ -94,13 +93,9 @@ class LoginView {
         }
     }
 
-	public function getUserClient() {
-		return new UserClient($_SERVER["REMOTE_ADDR"], $_SERVER["HTTP_USER_AGENT"]);
-	}
-
 	public function redirect($message) {
 
-		setcookie(self::$cookieID, $message, 0 , "/");
+		$this->setMessage($message);
 
 		$actual_link = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
 		header("HTTP/1.1 302 Found");
@@ -108,11 +103,15 @@ class LoginView {
 
 	}
 
+	private function setMessage($message) {
+		setcookie(self::$cookieSessionMessage, $message, 0 , "/");
+	}
+
 	private function getSessionMessage() {
 
-		if(isset($_COOKIE[self::$cookieID])) {
-			$msg = $_COOKIE[self::$cookieID];
-			setcookie(self::$cookieID, "", time() - 1000 , "/");
+		if(isset($_COOKIE[self::$cookieSessionMessage])) {
+			$msg = $_COOKIE[self::$cookieSessionMessage];
+			setcookie(self::$cookieSessionMessage, "", time() - 1000 , "/");
 			return $msg;
 		} else {
 			return "";
