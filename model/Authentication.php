@@ -12,7 +12,7 @@ class Authentication {
     private $usersArr;
 
     /**
-     * Constructor. It gets the array of users so that this class can
+     * Constructor. It initializes the array of users so that this class can
      * later authenticate user credentials.
      */
     public function __construct() {
@@ -38,7 +38,6 @@ class Authentication {
     /**
      * Returns a message to the user. This can be an error message or
      * information about successful login
-     * @param nothing
      * @return $this->outputMsg as string
      */
     public function getOutputMsg() {
@@ -47,10 +46,10 @@ class Authentication {
 
     /**
      * Logs in a user
-     * @param $username, which is username and $password which is password
-     * @param $password
-     * @param $userClient
-     * @return true is credentials are correct and false if otherwise
+     * @param $username, which is username
+     * @param $password, this is password
+     * @param $userClient, user's client containing information like ip address
+     * @return bool, true if credentials are correct and false if otherwise
      */
     public function login($username, $password, UserClient $userClient) {
 
@@ -62,19 +61,27 @@ class Authentication {
         }
     }
 
+    /**
+     * Checks if this user, from this client, is logged in
+     * @param UserClient $userClient, which contains information about the user's client, e.g. ip address
+     * @return bool
+     */
     public function isLoggedIn(UserClient $userClient) {
         if (isset($_SESSION[self::$sessionUserLocation])) {
             $user = $_SESSION[self::$sessionUserLocation];
 
+            // Check if this user is the same that has logged in before
             if ($userClient->isSame($user) == false) {
                 return false;
             }
             return true;
         }
-
         return false;
     }
 
+    /**
+     * Logs out the user
+     */
     public function doLogout() {
         $this->outputMsg = 'Bye bye!';
         unset($_SESSION[self::$sessionUserLocation]);
@@ -105,7 +112,11 @@ class Authentication {
 
         // Loop through all users and check if there exists a user with specified username and password
         for($i = 0; $i < $amount; $i++) {
-            if($this->users[$i]->getUsername() == $u && $this->users[$i]->getPassword() == $p) {
+
+            $username = $this->users[$i]->getUsername(); // Get username from array
+            $hashedPassword = $this->users[$i]->getPassword(); // Get hashed password from user array
+
+            if($username == $u && password_verify($p, $hashedPassword)) { // Check if credentials are correct
                 $_SESSION[self::$sessionUserLocation] = $userClient;
                 $this->outputMsg = 'Welcome';
                 return true;
@@ -115,7 +126,16 @@ class Authentication {
         return false;
     }
 
+    /**
+     * This method checks if user input is correct and registers new user
+     * @param $username
+     * @param $password
+     * @param $repeatedPassword
+     * @return bool, true is user created, false otherwise
+     */
     public function register($username, $password, $repeatedPassword) {
+
+        // Check is input is correct
         if(empty($username) && empty($password)) {
             $this->outputMsg = 'Username has too few characters, at least 3 characters.<br />Password has too few characters, at least 6 characters.';
             return false;
@@ -141,6 +161,7 @@ class Authentication {
             return false;
         }
 
+        // If user input ok, register new user
         $this->usersArr->addNewUserToDB($username, $password);
         $this->outputMsg = 'Registered new user.';
         return true;

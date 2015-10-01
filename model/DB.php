@@ -17,6 +17,7 @@ class DB {
     private $dbPassword = 'root';
     private $dbPort = 8889;
 
+
     /**
      * Private constructor. It connect to the DB and
      * crates an instance of this class.
@@ -51,7 +52,7 @@ class DB {
     public function getAllUsers() {
 
             $sql = "SELECT * FROM users"; // Select all entries
-            $result = $this->conn->query($sql); // Prepare for analysis
+            $result = $this->conn->query($sql); // Execute and prepare for analysis
 
             if ($result == false) { // Error with the DB. Throw an exception.
                 throw new \Exception("Error with the database.");
@@ -72,13 +73,17 @@ class DB {
      * @throws Exception, if an error occurs with the DB
      */
     public function addToDB($username, $password) {
+        // Prepare query
         $sql = "INSERT INTO users " .
                 "(`username`,`password`) " .
                 "VALUES ('$username', '$password')";
 
+        // Execute query
         $result = $this->conn->query($sql);
 
-        if ($result == false) { // Error with the DB. Throw an exception.
+        // Check for errors
+        if ($result == false) {
+            // Error with the DB. Throw an exception.
             throw new \Exception("Error with the database.");
         }
     }

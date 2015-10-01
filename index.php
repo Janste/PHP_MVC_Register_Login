@@ -10,11 +10,11 @@ require_once('view/DateTimeView.php');
 require_once('view/GeneralView.php');
 require_once('view/RegisterView.php');
 
-// Start session
-session_start();
-
 // We turn on PHP output buffering feature
 ob_start();
+
+// Start session
+session_start();
 
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
@@ -33,5 +33,4 @@ $controller = new Controller($m, $generalV);
 $controller->run();
 
 // Show output
-
 $generalV->render($m->isLoggedIn($generalV->getUserClient()));

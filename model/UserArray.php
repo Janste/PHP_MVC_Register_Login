@@ -11,14 +11,22 @@ class UserArray {
     private $errorMsg;
     private $users = array();
 
+    /**
+     * Adds new user to DB and users array
+     * @param $username
+     * @param $password
+     * @return bool, true if user added, false if error occured and user not added
+     */
     public function addNewUserToDB($username, $password) {
         try {
 
-            DB::getInstance()->addToDB($username, $password);
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT); // hash the password
+
+            DB::getInstance()->addToDB($username, $hashedPassword); // save the new user to DB
             $user = new User();
             $user->setUsername($username);
-            $user->setPassword($password);
-            $this->addUserToArray($user);
+            $user->setPassword($hashedPassword);
+            $this->addUserToArray($user); // save new user to users array
             return true;
 
         } catch (Exception $e) { // Catch exception

@@ -13,12 +13,19 @@ class LoginView {
 
 	private $loggedIn = false;
 
-    // If user inserted username then get that username
-    // so that it can be displayed on the form
+    /**
+     * If user inserted a username inside the form then get that username
+     * so that it can be displayed on the form when the web page loads.
+     */
 	public function __construct() {
 		self::$username = $this->checkUserName();
 	}
 
+    /**
+     * Checks if there is a name that we should display inside the form and also unsets the cookie that
+     * contained that username.
+     * @return string
+     */
     private function checkUserName() {
         if(isset($_COOKIE[self::$cookieUsername])) {
             $username = $_COOKIE[self::$cookieUsername];
@@ -29,13 +36,8 @@ class LoginView {
         }
     }
 
-    public function setUsernameToDisplay($usernameToDisplay) {
-        setcookie(self::$cookieUsername, $usernameToDisplay, 0 , "/");
-    }
-
     /**
      * Get the username from the form.
-     * @param nothing
      * @return false, or $username if user typed in it to the form
      */
     public function getUserName() {
@@ -50,7 +52,6 @@ class LoginView {
 
     /**
      * Get the password from the form.
-     * @param nothing
      * @return false, or $password if user typed in it to the form
      */
     public function getPassword() {
@@ -63,17 +64,7 @@ class LoginView {
     }
 
     /**
-     * Sets the boolean value. True is user logged in, false otherwise.
-     * @param $logged, which is a boolean value
-     * @return void
-     */
-	public function setUserLoggedIn($logged) {
-		$this->loggedIn = $logged;
-	}
-
-    /**
      * Checks if user clicked on log in button
-     * @param nothing
      * @return true or false
      */
     public function checkLogInButtonClicked() {
@@ -86,7 +77,6 @@ class LoginView {
 
     /**
      * Checks if user clicked on log out button
-     * @param nothing
      * @return true or false
      */
     public function checkLogoutButtonClicked() {
@@ -97,6 +87,28 @@ class LoginView {
         }
     }
 
+    /**
+     * Sets the boolean value. True is user logged in, false otherwise.
+     * @param $logged, which is a boolean value
+     * @return void
+     */
+    public function setUserLoggedIn($logged) {
+        $this->loggedIn = $logged;
+    }
+
+    /**
+     * Sets the username that will be later shown inside the form
+     * @param $usernameToDisplay
+     */
+    public function setUsernameToDisplay($usernameToDisplay) {
+        setcookie(self::$cookieUsername, $usernameToDisplay, 0 , "/");
+    }
+
+    /**
+     * This method redirects to the same web page from it's being called.
+     * It also sets the message that will be shown to the user when redirect is complete.
+     * @param $message, a string
+     */
 	public function redirect($message) {
 
 		$this->setMessage($message);
@@ -107,10 +119,18 @@ class LoginView {
 
 	}
 
+    /**
+     * This method is used to set the message that will be later displayed to the user.
+     * @param $message
+     */
 	private function setMessage($message) {
 		setcookie(self::$cookieSessionMessage, $message, 0 , "/");
 	}
 
+    /**
+     * If there is a message to be shown to the user, then this method returns that message
+     * @return string
+     */
 	private function getSessionMessage() {
 
 		if(isset($_COOKIE[self::$cookieSessionMessage])) {

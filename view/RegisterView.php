@@ -6,10 +6,15 @@ class RegisterView {
     private static $username = 'RegisterView::UserName';
     private static $password = 'RegisterView::Password';
     private static $repeatPassword = 'RegisterView::PasswordRepeat';
-    private static $register = 'DoRegistration';
+    private static $register = 'RegisterView::Register';
     private static $cookieSessionMessage = 'RegisterView::CookieSessionMessage';
     private static $cookieUsername = 'RegisterView::CookieUsername';
 
+    /**
+     * Method which checks if there is a username that we should display inside the form when the web page loads.
+     * If yes then we strip the html tags from it if they are present inside the username.
+     * @return string
+     */
     private function checkUserName() {
         if(isset($_COOKIE[self::$cookieUsername])) {
             $username = $_COOKIE[self::$cookieUsername];
@@ -73,6 +78,10 @@ class RegisterView {
         }
     }
 
+    /**
+     * Redirects to the register web page and sets the message.
+     * @param $message
+     */
     public function redirect($message) {
 
         $this->setMessage($message);
@@ -83,10 +92,18 @@ class RegisterView {
 
     }
 
+    /**
+     * Sets the message that will be later dispalyed to the user.
+     * @param $message
+     */
     private function setMessage($message) {
         setcookie(self::$cookieSessionMessage, $message, 0 , "/");
     }
 
+    /**
+     * If there is a message to the user that should be shown, then this method will returns such message.
+     * @return string
+     */
     private function getSessionMessage() {
 
         if(isset($_COOKIE[self::$cookieSessionMessage])) {

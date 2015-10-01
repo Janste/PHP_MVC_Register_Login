@@ -67,16 +67,19 @@ class Controller {
             // Check if register button clicked
             } elseif($this->view->getRegisterView()->checkRegisterButtonClicked()) {
 
+                // Get the data from the register form
                 $newUsername = $this->view->getRegisterView()->getUserNameToRegister();
                 $newPassword = $this->view->getRegisterView()->getPasswordToRegister();
                 $repeatedPassword = $this->view->getRegisterView()->getRepeatedPasswordToRegister();
 
+                // Register the new user
                 if($this->authenticate->register($newUsername, $newPassword, $repeatedPassword)) {
 
+                    // If the register operation is successful, then redirect and show proper message
                     $this->view->getLoginView()->redirect($this->authenticate->getOutputMsg());
                     $this->view->getLoginView()->setUsernameToDisplay($newUsername);
 
-                } else { // Something is wrong with user input during registration
+                } else { // Something was wrong with user input during registration
                     $this->view->getRegisterView()->redirect($this->authenticate->getOutputMsg());
                 }
 
