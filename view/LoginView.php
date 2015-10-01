@@ -18,7 +18,7 @@ class LoginView {
      * so that it can be displayed on the form when the web page loads.
      */
 	public function __construct() {
-		self::$username = $this->checkUserName();
+		self::$username = $this->checkUserNameInCookie();
 	}
 
     /**
@@ -26,7 +26,7 @@ class LoginView {
      * contained that username.
      * @return string
      */
-    private function checkUserName() {
+    private function checkUserNameInCookie() {
         if(isset($_COOKIE[self::$cookieUsername])) {
             $username = $_COOKIE[self::$cookieUsername];
             setcookie(self::$cookieUsername, "", time() - 1000 , "/");
