@@ -1,5 +1,7 @@
 <?php
 
+namespace model;
+
 /**
  * Class UserClient
  * It contains information about the user's client, like ip address
@@ -21,7 +23,7 @@ class UserClient {
 
     /**
      * Checks if this object is the same as the user object
-     * @param UserClient $other
+     * @param \model\UserClient $other
      * @return bool
      */
 	public function isSame(UserClient $other) {

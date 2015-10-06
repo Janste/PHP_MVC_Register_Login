@@ -1,5 +1,9 @@
 <?php
+
+namespace model;
+
 require_once("DB.php");
+require_once('User.php');
 
 /**
  * This class represents an array of users.
@@ -8,14 +12,13 @@ require_once("DB.php");
  */
 class UserArray {
 
-    private $errorMsg;
     private $users = array();
 
     /**
      * Adds new user to DB and users array
      * @param $username
      * @param $password
-     * @return bool, true if user added, false if error occured and user not added
+     * @return bool, true if user added, false if error occurred and user not added
      */
     public function addNewUserToDB($username, $password) {
         try {
@@ -29,8 +32,7 @@ class UserArray {
             $this->addUserToArray($user); // save new user to users array
             return true;
 
-        } catch (Exception $e) { // Catch exception
-            $this->errorMsg = $e->getMessage(); // Get error message
+        } catch (\Exception $e) { // Catch exception
             return false;
         }
 
@@ -70,18 +72,9 @@ class UserArray {
                 $this->addUserToArray($user);
             }
             return true;
-        } catch (Exception $e) { // Catch exception
-            $this->errorMsg = $e->getMessage(); // Get error message
+        } catch (\Exception $e) { // Catch exception
             return false;
         }
-    }
-
-    /**
-     * This method returns a string which contains the error message
-     * @return $errorMsg, a variable containing the error message
-     */
-    public function getErrorMessage() {
-        return $this->errorMsg;
     }
 
     /**

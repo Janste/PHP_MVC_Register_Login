@@ -1,5 +1,7 @@
 <?php
 
+namespace view;
+
 /**
  * Class GeneralView
  * This class represents a general overview of the whole view
@@ -42,11 +44,18 @@ class GeneralView {
     }
 
     /**
+     * A method which echoes an error message saying that a problem with the DB had occurred.
+     */
+    public function showDatabaseErrorMessage() {
+        echo 'A problem with the database occurred. Please try again later.';
+    }
+
+    /**
      * Returns the user's client information, like ip address
-     * @return UserClient
+     * @return \model\UserClient
      */
     public function getUserClient() {
-        return new UserClient($_SERVER["REMOTE_ADDR"], $_SERVER["HTTP_USER_AGENT"]);
+        return new \model\UserClient($_SERVER["REMOTE_ADDR"], $_SERVER["HTTP_USER_AGENT"]);
     }
 
     /**

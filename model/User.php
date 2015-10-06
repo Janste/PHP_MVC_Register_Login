@@ -1,5 +1,7 @@
 <?php
 
+namespace model;
+
 /**
  * This class represents one user.
  * A user can have a username and password.

@@ -1,5 +1,7 @@
 <?php
 
+namespace view;
+
 class RegisterView {
 
     private static $message = 'RegisterView::Message';
@@ -9,6 +11,17 @@ class RegisterView {
     private static $register = 'RegisterView::Register';
     private static $cookieSessionMessage = 'RegisterView::CookieSessionMessage';
     private static $cookieUsername = 'RegisterView::CookieUsername';
+
+    private $invalidCharactersFound = false;
+    private $userAlreadyExists = false;
+
+    public function setInvalidCharactersFound() {
+        $this->invalidCharactersFound = true;
+    }
+
+    public function setUserAlreadyExists() {
+        $this->userAlreadyExists = true;
+    }
 
     /**
      * Method which checks if there is a username that we should display inside the form when the web page loads.
@@ -80,9 +93,33 @@ class RegisterView {
 
     /**
      * Redirects to the register web page and sets the message.
-     * @param $message
      */
-    public function redirect($message) {
+    public function redirect() {
+
+        $message = "";
+
+        $username = $this->getUserNameToRegister();
+        $password = $this->getPasswordToRegister();
+        $repeatedPassword = $this->getRepeatedPasswordToRegister();
+
+        if(empty($username) && empty($password)) {
+            $message = 'Username has too few characters, at least 3 characters.<br />Password has too few characters, at least 6 characters.';
+        }
+        elseif(strlen($username) < 3) {
+            $message = 'Username has too few characters, at least 3 characters.';
+        }
+        elseif(strlen($password) < 6 || empty($password) || empty($repeatedPassword)) {
+            $message = 'Password has too few characters, at least 6 characters.';
+        }
+        elseif($password != $repeatedPassword) {
+            $message = 'Passwords do not match.';
+        }
+        elseif($this->invalidCharactersFound === true) {
+            $message = 'Username contains invalid characters.';
+        }
+        elseif($this->userAlreadyExists === true) {
+            $message = 'User exists, pick another username.';
+        }
 
         $this->setMessage($message);
 

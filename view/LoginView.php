@@ -1,5 +1,7 @@
 <?php
 
+namespace view;
+
 class LoginView {
 	private static $login = 'LoginView::Login';
 	private static $logout = 'LoginView::Logout';
@@ -14,12 +16,56 @@ class LoginView {
 	private $loggedIn = false;
 
     /**
+     * View is set via those variables
+     */
+    private $loginHasFailed = false;
+    private $loginHasSucceeded = false;
+    private $userDidLogout = false;
+    private $newUserRegistered = false;
+
+    /**
      * If user inserted a username inside the form then get that username
      * so that it can be displayed on the form when the web page loads.
      */
 	public function __construct() {
 		self::$username = $this->checkUserNameInCookie();
 	}
+
+    /**
+     * Tell the view that login has failed so that it can show correct message
+     * Called this when login has failed
+     */
+    public function setLoginFailed() {
+        $this->loginHasFailed = true;
+    }
+
+    /**
+     * Tell the view that login succeeded so that it can show correct message
+     * Called this if login succeeds
+     */
+    public function setLoginSucceeded() {
+        $this->loginHasSucceeded = true;
+    }
+
+    /**
+     * Tell the view that logout happened so that it can show correct message
+     * Called this when user logged out
+     */
+    public function setUserLogoutSucceed() {
+        $this->userDidLogout = true;
+    }
+
+    public function setNewUserRegistered() {
+        $this->newUserRegistered = true;
+    }
+
+    /**
+     * Sets the boolean value. True is user logged in, false otherwise.
+     * @return void
+     */
+    public function setUserLoggedIn() {
+        $this->loggedIn = true;
+    }
 
     /**
      * Checks if there is a name that we should display inside the form and also unsets the cookie that
@@ -87,14 +133,7 @@ class LoginView {
         }
     }
 
-    /**
-     * Sets the boolean value. True is user logged in, false otherwise.
-     * @param $logged, which is a boolean value
-     * @return void
-     */
-    public function setUserLoggedIn($logged) {
-        $this->loggedIn = $logged;
-    }
+
 
     /**
      * Sets the username that will be later shown inside the form
@@ -109,7 +148,28 @@ class LoginView {
      * It also sets the message that will be shown to the user when redirect is complete.
      * @param $message, a string
      */
-	public function redirect($message) {
+	public function redirect() {
+
+        $message = "";
+
+        if ($this->userDidLogout === true) {
+            $message = "Bye bye!";
+        }
+        elseif ($this->loginHasFailed && $this->getUserName() == "") {
+            $message = "Username is missing";
+        }
+        elseif ($this->loginHasFailed && $this->getPassword() == "") {
+            $message = "Password is missing";
+        }
+        elseif ($this->loginHasFailed === true) {
+            $message = "Wrong name or password";
+        }
+        elseif ($this->loginHasSucceeded === true) {
+            $message = "Welcome";
+        }
+        elseif($this->newUserRegistered === true) {
+            $message = "Registered new user.";
+        }
 
 		$this->setMessage($message);
 

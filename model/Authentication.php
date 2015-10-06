@@ -1,5 +1,10 @@
 <?php
 
+namespace model;
+
+require_once("UserArray.php");
+require_once("UserClient.php");
+
 /**
  * This class checks if username or password typed by user is correct.
  */
@@ -8,8 +13,10 @@ class Authentication {
     private static $sessionUserLocation = "Authentication::loggedInUser";
 
     private $users = array();
-    private $outputMsg = '';
     private $usersArr;
+
+    private $invalidCharactersFound = false;
+    private $userAlreadyExists = false;
 
     /**
      * Constructor. It initializes the array of users so that this class can
@@ -30,18 +37,38 @@ class Authentication {
             $this->users = $this->usersArr->getUsers();
             return true;
         } else {
-            $this->outputMsg = $this->usersArr->getErrorMessage();
             return false;
         }
     }
 
     /**
-     * Returns a message to the user. This can be an error message or
-     * information about successful login
-     * @return $this->outputMsg as string
+     * Get a bool value indicating if there were invalid characters in user's input.
+     * @return bool
      */
-    public function getOutputMsg() {
-        return $this->outputMsg;
+    public function getInvalidCharactersFound() {
+        return $this->invalidCharactersFound;
+    }
+
+    /**
+     * Set the bool variable telling if invalid characters were found in user's input
+     */
+    private function setInvalidCharactersFound() {
+        $this->invalidCharactersFound = true;
+    }
+
+    /**
+     * Get a bool value indicating if the given username already exists
+     * @return bool
+     */
+    public function getUserAlreadyExists() {
+        return $this->userAlreadyExists;
+    }
+
+    /**
+     * Set the bool variable telling if the given username already exists
+     */
+    private function setUserAlreadyExists() {
+        $this->userAlreadyExists = true;
     }
 
     /**
@@ -83,7 +110,6 @@ class Authentication {
      * Logs out the user
      */
     public function doLogout() {
-        $this->outputMsg = 'Bye bye!';
         unset($_SESSION[self::$sessionUserLocation]);
     }
 
@@ -99,11 +125,9 @@ class Authentication {
     public function authenticate ($u, $p, $userClient) {
 
         if(empty($u)) { // Check is username field is empty
-            $this->outputMsg = 'Username is missing';
             return false;
 
         } elseif (empty($p)) { // Check is password field is empty
-            $this->outputMsg = 'Password is missing';
             return false;
 
         }
@@ -118,11 +142,9 @@ class Authentication {
 
             if($username == $u && password_verify($p, $hashedPassword)) { // Check if credentials are correct
                 $_SESSION[self::$sessionUserLocation] = $userClient;
-                $this->outputMsg = 'Welcome';
                 return true;
             }
         }
-        $this->outputMsg = 'Wrong name or password';
         return false;
     }
 
@@ -137,33 +159,28 @@ class Authentication {
 
         // Check is input is correct
         if(empty($username) && empty($password)) {
-            $this->outputMsg = 'Username has too few characters, at least 3 characters.<br />Password has too few characters, at least 6 characters.';
             return false;
         }
         elseif(strlen($username) < 3) {
-            $this->outputMsg = 'Username has too few characters, at least 3 characters.';
-            return false;
+           return false;
         }
         elseif (strlen($password) < 6 || empty($password) || empty($repeatedPassword)) {
-            $this->outputMsg = 'Password has too few characters, at least 6 characters.';
             return false;
         }
         elseif ($password != $repeatedPassword) {
-            $this->outputMsg = 'Passwords do not match.';
             return false;
         }
         elseif ($this->containsInvalidCharacters($username)) {
-            $this->outputMsg = 'Username contains invalid characters.';
+            $this->setInvalidCharactersFound();
             return false;
         }
         elseif($this->checkUsernameExists($username)) {
-            $this->outputMsg = 'User exists, pick another username.';
+            $this->setUserAlreadyExists();
             return false;
         }
 
         // If user input ok, register new user
         $this->usersArr->addNewUserToDB($username, $password);
-        $this->outputMsg = 'Registered new user.';
         return true;
 
     }

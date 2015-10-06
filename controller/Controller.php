@@ -1,12 +1,14 @@
 <?php
 
+namespace controller;
+
 class Controller {
 
     private $view;
     private $authenticate;
 
     // Constructor
-    public function __construct(Authentication $m, GeneralView $v) {
+    public function __construct(\model\Authentication $m, \view\GeneralView $v) {
         $this->view = $v;
         $this->authenticate = $m;
     }
@@ -15,7 +17,9 @@ class Controller {
     public function run() {
 
         // This method initializes the model (connection to db, etc.)
-        $this->authenticate->initialize();
+        if (!$this->authenticate->initialize()) {
+            $this->view->showDatabaseErrorMessage(); // If an error with the DB occurred, show error message
+        }
 
         // Get information about the user
         $userClient = $this->view->getUserClient();
@@ -24,22 +28,18 @@ class Controller {
         if ($this->authenticate->isLoggedIn($userClient)) {
 
             // Create view for logged in page
-            $this->view->getLoginView()->setUserLoggedIn(true);
+            $this->view->getLoginView()->setUserLoggedIn();
 
             // Check if user clicked on log out button
             if ($this->view->getLoginView()->checkLogoutButtonClicked()) {
 
                 // Logging out user, display proper view
                 $this->authenticate->doLogout();
-                $this->view->getLoginView()->setUserLoggedIn(false);
-
-                $this->view->getLoginView()->redirect($this->authenticate->getOutputMsg());
+                $this->view->getLoginView()->setUserLogoutSucceed();
+                $this->view->getLoginView()->redirect();
             }
 
         } else { // User not logged in
-
-            // Set proper view for the logged out page
-            $this->view->getLoginView()->setUserLoggedIn(false);
 
             // Check if log in button clicked
             if ($this->view->getLoginView()->checkLogInButtonClicked()) {
@@ -52,15 +52,16 @@ class Controller {
                 if ($this->authenticate->login($username, $password, $userClient)) {
 
                     // User credentials correct, set up proper view
-                    $this->view->getLoginView()->setUserLoggedIn(true);
+                    $this->view->getLoginView()->setUserLoggedIn();
+                    $this->view->getLoginView()->setLoginSucceeded();
+                    $this->view->getLoginView()->redirect();
 
-                    $this->view->getLoginView()->redirect($this->authenticate->getOutputMsg());
 
                 } else { // User credentials incorrect
 
                     // Set up view with error message
-                    $this->view->getLoginView()->setUserLoggedIn(false);
-                    $this->view->getLoginView()->redirect($this->authenticate->getOutputMsg());
+                    $this->view->getLoginView()->setLoginFailed();
+                    $this->view->getLoginView()->redirect();
 
                 }
 
@@ -76,13 +77,20 @@ class Controller {
                 if($this->authenticate->register($newUsername, $newPassword, $repeatedPassword)) {
 
                     // If the register operation is successful, then redirect and show proper message
-                    $this->view->getLoginView()->redirect($this->authenticate->getOutputMsg());
+                    $this->view->getLoginView()->setNewUserRegistered();
                     $this->view->getLoginView()->setUsernameToDisplay($newUsername);
+                    $this->view->getLoginView()->redirect();
 
                 } else { // Something was wrong with user input during registration
-                    $this->view->getRegisterView()->redirect($this->authenticate->getOutputMsg());
-                }
 
+                    if ($this->authenticate->getInvalidCharactersFound() == true) {
+                        $this->view->getRegisterView()->setInvalidCharactersFound();
+                    } elseif ($this->authenticate->getUserAlreadyExists() == true) {
+                        $this->view->getRegisterView()->setUserAlreadyExists();
+                    }
+
+                    $this->view->getRegisterView()->redirect();
+                }
             }
         }
     }
